@@ -1,0 +1,19 @@
+{
+  "name": "kowaibot",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "kowaiBot_emailHTML.js",
+  "scripts": {
+    "start": "node kowaiBot_emailHTML.js"
+  },
+  "dependencies": {
+    "@vitalets/google-translate-api": "^9.2.1",
+    "axios": "^1.13.4",
+    "cheerio": "^1.2.0",
+    "dotenv": "^16.6.1",
+    "iconv-lite": "^0.7.2",
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^7.0.13",
+    "openai": "^4.104.0"
+  }
+}
