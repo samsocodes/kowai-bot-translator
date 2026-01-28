@@ -6,7 +6,7 @@ Projeto em Node.js criado para estudar automação, web scraping e tradução de
 
 O sistema agora possui **dois módulos principais** que funcionam de forma independente ou integrada:
 
-### 1. ** Coletor de Histórias (`baixador-interativo.js`)**
+### 1. **Coletor de Histórias (`baixador-interativo.js`)**
 - Baixa histórias diretamente do site usando apenas o ID da URL
 - Menu interativo para selecionar quais histórias baixar
 - Extrai automaticamente título e conteúdo
