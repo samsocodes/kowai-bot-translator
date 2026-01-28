@@ -157,8 +157,6 @@ Projeto para fins educacionais. O conteúdo das histórias pertence aos autores 
 - [ ] Adicionar sistema de favoritos
 - [ ] Exportar em formatos diferentes (PDF, EPUB)
 
-## Projeto desenvolvido com ❤️ para estudo de automação e programação em JavaScript.
-
 ---
 
 *Projeto desenvolvido com ❤️ para estudo de automação e programação em JavaScript.*
