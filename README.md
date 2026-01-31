@@ -149,7 +149,8 @@ Sinta-se à vontade para:
 
 ## 📄 Licença
 
-Projeto para fins educacionais. O conteúdo das histórias pertence aos autores originais.
+Este projeto está licenciado sob a licença MIT.  
+Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.
 
 
 **Dica**: Comece com `node baixador-interativo.js` para baixar histórias e depois use `node traduzir-menu.js` para traduzi-las! ✨
