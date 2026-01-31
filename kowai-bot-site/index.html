@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kowai Bot - Tradutor de Histórias Japonesas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Fontes pixeladas */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #000000;
+            --white: #FFFFFF;
+            --red: #FF0000;
+            --dark-red: #8B0000;
+            --purple: #8A2BE2;
+            --dark-purple: #4B0082;
+            --gray: #333333;
+            --light-gray: #666666;
+            --glitch-red: #FF3366;
+            --glitch-blue: #3366FF;
+            --scanline: rgba(0, 255, 0, 0.1);
+            --warning: #FFA500;
+        }
+
+        body {
+            background-color: var(--black);
+            color: var(--white);
+            font-family: 'VT323', monospace;
+            line-height: 1.4;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" fill="%23333"/></svg>');
+            position: relative;
+            text-align: center;
+        }
+
+        /* Efeito scanline CRT */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                transparent 50%,
+                var(--scanline) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.2;
+            animation: scanline 10s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        /* Header estilo arcade */
+        header {
+            background-color: var(--black);
+            border-bottom: 4px solid var(--red);
+            padding: 20px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px var(--purple);
+            text-align: center;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            justify-content: center;
+        }
+
+        /* Fantasminha 8-bit */
+        .ghost-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--white);
+            border-radius: 40px 40px 0 0;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--purple);
+        }
+
+        .ghost-icon::before {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--black);
+            border-radius: 50%;
+            top: 20px;
+            left: 10px;
+            box-shadow: 20px 0 var(--black);
+        }
+
+        .ghost-icon::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            bottom: -10px;
+            left: 0;
+            background: var(--white);
+            border-radius: 50%;
+            box-shadow: 
+                10px 0 0 0 var(--white),
+                20px 0 0 0 var(--white),
+                30px 0 0 0 var(--white),
+                40px 0 0 0 var(--white);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            color: var(--white);
+            text-shadow: 
+                3px 3px 0 var(--red),
+                6px 6px 0 var(--purple);
+            letter-spacing: 1px;
+        }
+
+        .logo-text span {
+            color: var(--red);
+        }
+
+        .github-link {
+            background-color: var(--gray);
+            color: var(--white);
+            padding: 12px 24px;
+            border-radius: 0;
+            text-decoration: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 3px solid var(--red);
+            box-shadow: 4px 4px 0 var(--purple);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .github-link:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--purple);
+            background-color: var(--dark-red);
+        }
+
+        .github-link::before {
+            content: ">";
+            position: absolute;
+            left: 10px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .github-link:hover::before {
+            opacity: 1;
+        }
+
+        /* Hero Section estilo arcade */
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            border-bottom: 4px dashed var(--purple);
+            margin-bottom: 40px;
+        }
+
+        .hero::before {
+            content: "■■■■■■■■■■■■■■■■■■■■■■■■■■■■";
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            color: var(--red);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            letter-spacing: 5px;
+            opacity: 0.5;
+        }
+
+        .hero h2 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: var(--white);
+            text-shadow: 
+                0 0 5px var(--red),
+                0 0 10px var(--red);
+            line-height: 1.5;
+            animation: glitch 3s infinite;
+            position: relative;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            2% { transform: translate(-2px, 2px); }
+            4% { transform: translate(-2px, -2px); }
+            6% { transform: translate(2px, 2px); }
+            8% { transform: translate(2px, -2px); }
+            10% { transform: translate(0); }
+            100% { transform: translate(0); }
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            color: var(--white);
+            background-color: rgba(51, 51, 51, 0.8);
+            padding: 20px;
+            border: 2px solid var(--purple);
+            box-shadow: inset 0 0 10px var(--black);
+            position: relative;
+            text-align: center;
+        }
+
+        .hero p::before {
+            content: ">";
+            position: absolute;
+            left: 10px;
+            color: var(--red);
+        }
+
+        .highlight {
+            color: var(--red);
+            font-weight: bold;
+            text-shadow: 0 0 5px var(--red);
+        }
+
+        /* Cards estilo 8-bit */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+            text-align: center;
+        }
+
+        .card {
+            background-color: var(--gray);
+            border-radius: 0;
+            padding: 25px;
+            border: 4px solid var(--white);
+            position: relative;
+            transition: all 0.3s;
+            box-shadow: 8px 8px 0 var(--purple);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: translate(4px, 4px);
+            box-shadow: 4px 4px 0 var(--purple);
+            background-color: var(--light-gray);
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--red), var(--purple));
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--red);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 var(--black);
+            display: inline-block;
+        }
+
+        .card h3 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--white);
+            border-bottom: 2px solid var(--red);
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .card p {
+            color: #CCCCCC;
+            font-size: 1.2rem;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        /* Warning Section - CENTRALIZADA */
+        .warning-section {
+            margin: 60px 0;
+            padding: 40px 0;
+            border-top: 4px dashed var(--warning);
+            border-bottom: 4px dashed var(--warning);
+            background-color: rgba(139, 0, 0, 0.1);
+            position: relative;
+            text-align: center;
+        }
+
+        .warning-section::before {
+            content: "⚠️ AVISO IMPORTANTE ⚠️";
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--black);
+            color: var(--warning);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            padding: 5px 15px;
+            border: 2px solid var(--warning);
+            white-space: nowrap;
+        }
+
+        .warning-title {
+            text-align: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.8rem;
+            margin-bottom: 40px;
+            color: var(--warning);
+            text-shadow: 0 0 10px var(--warning);
+            position: relative;
+        }
+
+        .warning-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .warning-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .warning-item {
+            background-color: rgba(51, 51, 51, 0.9);
+            padding: 25px;
+            border: 3px solid var(--warning);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .warning-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(255, 165, 0, 0.5);
+            border-color: var(--red);
+        }
+
+        .warning-item i {
+            font-size: 2.5rem;
+            color: var(--warning);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 var(--black);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .warning-item h4 {
+            font-family: 'Press Start 2P', cursive;
+            margin-bottom: 15px;
+            color: var(--white);
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .warning-item p {
+            color: #CCCCCC;
+            font-size: 1.2rem;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        /* Features */
+        .features {
+            margin: 60px 0;
+            padding: 40px 0;
+            border-top: 4px dashed var(--purple);
+            border-bottom: 4px dashed var(--purple);
+            text-align: center;
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.8rem;
+            margin-bottom: 50px;
+            color: var(--white);
+            position: relative;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--gray);
+            border: 3px solid var(--red);
+        }
+
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -15px;
+            left: 20%;
+            width: 60%;
+            height: 3px;
+            background-color: var(--red);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            justify-items: center;
+        }
+
+        .feature-item {
+            background-color: rgba(51, 51, 51, 0.7);
+            padding: 25px;
+            border: 2px solid var(--purple);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .feature-item:hover {
+            background-color: rgba(102, 102, 102, 0.7);
+            border-color: var(--red);
+        }
+
+        .feature-item i {
+            font-size: 2rem;
+            color: var(--red);
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 0 var(--black);
+        }
+
+        .feature-item h4 {
+            font-family: 'Press Start 2P', cursive;
+            margin-bottom: 10px;
+            color: var(--white);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Steps */
+        .steps {
+            margin: 60px 0;
+            text-align: center;
+        }
+
+        .step {
+            display: flex;
+            margin-bottom: 40px;
+            background-color: var(--gray);
+            border: 3px solid var(--white);
+            position: relative;
+            box-shadow: 6px 6px 0 var(--purple);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .step:hover {
+            box-shadow: 3px 3px 0 var(--purple);
+            transform: translate(3px, 3px);
+        }
+
+        .step-number {
+            background-color: var(--red);
+            color: var(--white);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 3px solid var(--white);
+        }
+
+        .step-content {
+            padding: 25px;
+            flex: 1;
+            text-align: left;
+        }
+
+        .step-content h4 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--white);
+            text-align: left;
+        }
+
+        .step-content p {
+            color: #CCCCCC;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .code-block {
+            background-color: var(--black);
+            color: var(--red);
+            padding: 15px;
+            font-family: 'VT323', monospace;
+            font-size: 1.3rem;
+            margin: 15px 0;
+            border-left: 4px solid var(--purple);
+            border-right: 4px solid var(--purple);
+            overflow-x: auto;
+            white-space: nowrap;
+            position: relative;
+            text-align: left;
+        }
+
+        .code-block::before {
+            content: "$";
+            color: var(--red);
+            margin-right: 10px;
+        }
+
+        /* Technologies */
+        .tech-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .tech-item {
+            background-color: var(--gray);
+            color: var(--white);
+            padding: 12px 24px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid var(--red);
+            transition: all 0.2s;
+        }
+
+        .tech-item:hover {
+            background-color: var(--red);
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--black);
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 4px solid var(--red);
+            position: relative;
+            text-align: center;
+        }
+
+        footer::before {
+            content: "■■■■■■■■■■■■■■■■■■■■■■■■■■■■";
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            color: var(--red);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            letter-spacing: 5px;
+            opacity: 0.5;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            text-align: center;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        .footer-section h4 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            color: var(--red);
+            border-bottom: 2px solid var(--purple);
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .footer-section p, .footer-section a {
+            color: #AAAAAA;
+            margin-bottom: 10px;
+            display: block;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+            text-align: center;
+        }
+
+        .footer-section a:hover {
+            color: var(--red);
+            text-shadow: 0 0 5px var(--red);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray);
+            color: #666666;
+            font-size: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .logo-text {
+                font-size: 1.2rem;
+            }
+            
+            .hero h2 {
+                font-size: 1.5rem;
+            }
+            
+            .step {
+                flex-direction: column;
+                max-width: 90%;
+            }
+            
+            .step-number {
+                width: 100%;
+                height: 60px;
+                border-right: none;
+                border-bottom: 3px solid var(--white);
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .footer-section {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .ghost-icon {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .warning-section::before {
+                font-size: 0.7rem;
+                white-space: normal;
+                width: 90%;
+                text-align: center;
+            }
+            
+            .step-content {
+                text-align: center;
+            }
+            
+            .step-content h4, .step-content p, .code-block {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="ghost-icon"></div>
+                    <div class="logo-text">Kowai<span>Bot</span>Translator</div>
+                </div>
+                <a href="https://github.com/samsocodes/kowai-bot-translator" class="github-link" target="_blank">
+                    <i class="fab fa-github"></i>
+                    Ver no GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2>Sistema Completo de Coleta e Tradução de Histórias Japonesas</h2>
+            <p>Projeto em <span class="highlight">Node.js</span> criado para estudar automação, <span class="highlight">web scraping</span> e <span class="highlight">tradução de textos</span>. Coleta histórias diretamente do site e as traduz do japonês para português brasileiro.</p>
+        </div>
+    </section>
+
+    <!-- Main Cards -->
+    <section class="container">
+        <div class="cards">
+            <!-- Card 1 -->
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <h3>Coletor de Histórias</h3>
+                <p>Baixa histórias diretamente do site usando apenas o ID da URL. Menu interativo para selecionar quais histórias baixar. Extrai automaticamente título e conteúdo e salva em arquivos .txt organizados.</p>
+            </div>
+            
+            <!-- Card 2 -->
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-language"></i>
+                </div>
+                <h3>Tradutor Automático</h3>
+                <p>Traduz histórias do japonês para português brasileiro. Divisão inteligente de textos longos (supera limites da API). Menu interativo para escolher traduções individuais ou em lote. Verifica automaticamente quais histórias já foram traduzidas.</p>
+            </div>
+            
+            <!-- Card 3 -->
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-folder-tree"></i>
+                </div>
+                <h3>Estrutura Organizada</h3>
+                <p>Pasta separada para histórias em japonês e traduzidas. Scripts modulares para diferentes funcionalidades. Código limpo e bem documentado para fácil manutenção e expansão.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Warning Section - CENTRALIZADA -->
+    <section class="warning-section">
+        <div class="container">
+            <h2 class="warning-title">AVISO IMPORTANTE</h2>
+            <div class="warning-content">
+                <div class="warning-grid">
+                    <div class="warning-item">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h4>O bot NÃO roda no navegador</h4>
+                        <p>
+                            Este site é apenas uma página demonstrativa.
+                            O scraping e a coleta das histórias são feitos
+                            localmente usando Node.js.
+                        </p>
+                    </div>
+
+                    <div class="warning-item">
+                        <i class="fas fa-terminal"></i>
+                        <h4>Execução Local</h4>
+                        <p>
+                            Para rodar o bot, é necessário instalar Node.js
+                            e executar os scripts via terminal.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Funcionalidades Principais</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <h4>Interface Interativa</h4>
+                    <p>Menus CLI amigáveis para selecionar histórias e opções de tradução</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-code"></i>
+                    <h4>Web Scraping</h4>
+                    <p>Extrai conteúdo de forma eficiente e responsável do site fonte</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h4>Tradução Automática</h4>
+                    <p>Integração com API do Google Translate para traduções rápidas</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-cogs"></i>
+                    <h4>Processamento em Lote</h4>
+                    <p>Traduza uma história específica ou todas as não traduzidas de uma vez</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How to Use -->
+    <section class="steps">
+        <div class="container">
+            <h2 class="section-title">Como Usar</h2>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Primeiro Passo: Baixar Histórias</h4>
+                    <p>Execute o coletor de histórias para baixar as histórias do site.</p>
+                    <div class="code-block">node baixador-interativo.js</div>
+                    <p>No menu interativo, escolha entre histórias pré-definidas ou digite os IDs manualmente.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Segundo Passo: Traduzir Histórias</h4>
+                    <p>Execute o tradutor para converter as histórias para português.</p>
+                    <div class="code-block">node traduzir-menu.js</div>
+                    <p>No menu do tradutor, veja todas as histórias disponíveis e escolha quais traduzir.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Configuração Rápida</h4>
+                    <p>Para baixar histórias específicas, edite o arquivo <strong>baixar-rapido.js</strong>:</p>
+                    <div class="code-block">const IDs = [14905, 8883, 7675]; // Adicione mais IDs aqui!</div>
+                    <p>Para personalizar a lista de histórias populares, edite <strong>baixador-interativo.js</strong>.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technologies -->
+    <section class="container">
+        <h2 class="section-title">Tecnologias Utilizadas</h2>
+        <div class="tech-list">
+            <div class="tech-item"><i class="fab fa-node-js"></i> Node.js</div>
+            <div class="tech-item"><i class="fas fa-code"></i> JavaScript</div>
+            <div class="tech-item"><i class="fas fa-network-wired"></i> Axios</div>
+            <div class="tech-item"><i class="fas fa-search"></i> Cheerio</div>
+            <div class="tech-item"><i class="fas fa-language"></i> Google Translate API</div>
+            <div class="tech-item"><i class="fas fa-file-alt"></i> File System Module</div>
+            <div class="tech-item"><i class="fas fa-terminal"></i> Readline</div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Kowai Bot Translator</h4>
+                    <p>Sistema completo de coleta e tradução de histórias japonesas. Projeto educativo focado no estudo de automação e programação.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Links Importantes</h4>
+                    <a href="https://github.com/samsocodes/kowai-bot-translator" target="_blank">Repositório no GitHub</a>
+                    <a href="https://kowaihanasi.ghostmap.jp/" target="_blank">Site Fonte das Histórias</a>
+                    <a href="https://nodejs.org/" target="_blank">Node.js</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Observações</h4>
+                    <p>Respeito ao conteúdo original: As histórias não estão incluídas no repositório.</p>
+                    <p>Uso educacional: Foco no estudo de automação e programação.</p>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>Projeto criado por <strong>samsocodes</strong> © 2026 - Kowai Bot Translator</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Adicionar interatividade simples
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar efeito de digitação no título
+            const heroTitle = document.querySelector('.hero h2');
+            const originalText = heroTitle.textContent;
+            heroTitle.textContent = '';
+            
+            let i = 0;
+            function typeWriter() {
+                if (i < originalText.length) {
+                    heroTitle.textContent += originalText.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 50);
+                }
+            }
+            
+            // Iniciar efeito após um breve delay
+            setTimeout(typeWriter, 500);
+            
+            // Adicionar animação aos cards quando aparecem na tela
+            const cards = document.querySelectorAll('.card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            cards.forEach(card => {
+                card.style.opacity = 0;
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s, transform 0.5s';
+                observer.observe(card);
+            });
+            
+            // Adicionar efeito de piscar para os avisos
+            const warnings = document.querySelectorAll('.warning-item i');
+            warnings.forEach(warning => {
+                setInterval(() => {
+                    warning.style.color = warning.style.color === 'var(--red)' ? 'var(--warning)' : 'var(--red)';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>
