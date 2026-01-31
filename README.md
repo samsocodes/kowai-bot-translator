@@ -1,5 +1,10 @@
 # Kowai Bot — Sistema Completo de Coleta e Tradução de Histórias Japonesas
 
+![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-ESM-yellow?logo=javascript&logoColor=black)
+![Axios](https://img.shields.io/badge/Axios-HTTP%20Client-purple)
+![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-blue)
+
 Projeto em Node.js criado para estudar automação, web scraping e tradução de textos.
 
 ## Funcionalidades
