@@ -2,6 +2,7 @@
 
 ![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ESM-yellow?logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-Markup-E34F26?logo=html5&logoColor=white)
 ![Axios](https://img.shields.io/badge/Axios-HTTP%20Client-purple)
 ![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-blue)
 
